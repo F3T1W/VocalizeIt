@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /VocalizeItServer/venv
 /VocalizeItServer/uploads
+/VocalizeItServer/.idea
