@@ -28,6 +28,14 @@
                             <h4>Server Response: @ServerResponseMessage</h4>
                         </div>
                     }
+
+                    @if (!string.IsNullOrEmpty(AudioFileUrl))
+                    {
+                        <div class="mt-3">
+                            <h4>Download your audio file:</h4>
+                            <a href="@AudioFileUrl" download="ConvertedAudio.mp3" class="btn btn-success">Download Audio</a>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -37,6 +45,7 @@
 @code {
     private IBrowserFile? selectedFile;
     private string? ServerResponseMessage;
+    private string? AudioFileUrl;
     private bool IsProcessing = false;
 
     private void HandleFileSelected(InputFileChangeEventArgs e)
@@ -49,6 +58,8 @@
         if (selectedFile != null)
         {
             IsProcessing = true;
+            ServerResponseMessage = null;
+            AudioFileUrl = null;
 
             try
             {
@@ -62,12 +73,13 @@
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    var result = JsonDocument.Parse(jsonResponse);
-                    var message = result.RootElement.GetProperty("message").GetString();
+                    // Save the audio file to a local stream
+                    var audioData = await response.Content.ReadAsByteArrayAsync();
+                    var base64Audio = Convert.ToBase64String(audioData);
+                    AudioFileUrl = $"data:audio/mp3;base64,{base64Audio}";
 
-                    // Display the server response
-                    ServerResponseMessage = message;
+                    // Display the server response message
+                    ServerResponseMessage = "Conversion successful! Your audio file is ready for download.";
                 }
                 else
                 {
